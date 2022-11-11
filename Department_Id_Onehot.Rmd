@@ -1,0 +1,29 @@
+---
+title: "Untitled"
+output: html_document
+date: "2022-11-11"
+---
+
+```{r}
+library(readr)
+library(mltools)
+library(data.table)
+
+Department_id <- read_csv("Department_id.csv")
+
+Department_id$dept <- as.factor(Department_id$dept)
+newdata <- one_hot(as.data.table(Department_id))
+newdata
+#library(caret)
+
+#dummy <- dummyVars(" ~ .", data=Department_id)
+#newdata <- data.frame(predict(dummy, newdata = Department_id)) 
+#newdata
+```
+
+```{r}
+library(reshape2)
+
+newdata <- dcast(data = Department_id, Outcome ~ Variable, length
+```
+
