@@ -19,20 +19,28 @@ library(caret)
 trnsact_filename <- "trnsact10k.csv"
 str_filename <- "strinfo_h.csv"
 sku_filename <- "skuinfo10K.csv"
+topcolor_filename <- "top20colors.csv"
+mapping_filename <- "stateregionmapping.csv"
 trnsact_sample_query <-"SELECT * FROM trnsact ORDER BY RANDOM() LIMIT 10000;"
 sku_sample_query <- "SELECT * FROM skuinfo ORDER BY RANDOM() LIMIT 10000;"
 str_query <- "SELECT storeid, state FROM strinfo;"
 
-#Dictionary about colors
-colors = c("red", "yellow", "green", "blue", "white", "black", "pink", "purple")
+
+top20colors_query <- "SELECT color, count(distinct sku) as freq
+                      FROM skuinfo
+                      GROUP BY color
+                      ORDER BY freq DESC
+                      LIMIT 20;"
 
 #State-Region Mapping
-
+region_mapping <- read.csv(mapping_filename,
+                header = TRUE, sep = ",") %>% select(State.Code, Region, Division) %>%
+                rename(state = State.Code, region = Region, division = Division) 
 
 ```
 
 ```{r}
-#helper function
+#helper functions
 
 #A Mode for categorical variable, to give every sku a state it's most sold in
 calculate_mode <- function(x) {
@@ -57,7 +65,8 @@ sku <- read.csv(sku_filename,
   left_join(trnsact, by = "sku") %>% #use sku to join transaction+state and sku
   group_by(sku) %>%
   summarise(sku, color, state = calculate_mode(state)) %>% #for each sku which state did it sell best?
-  filter(!is.na(state))
+  filter(!is.na(state)) %>%
+  left_join(region_mapping, by = 'state') # merging the region variables
 # because the limitation of the data sample, basically only 62 matches were found between the transact and sku. It won't be a problem when we actually apply this to a larger data set.
 ```
 
@@ -69,6 +78,6 @@ sku <- read.csv(sku_filename,
 dummy <- dummyVars(" ~ .", data=sku)
 sku <- data.frame(predict(dummy, newdata=sku))
 
-#We see there are way too many columns here. Need to group colors into buckets. Coral and Salmon are both pink. Will do that next time.
+#We see there are way too many columns here. Need to group colors into buckets. Coral and Salmon are both pink. 
 #Also without losing info granularity, we are considering grouping different states into regions - West, Southwest, Midwest, Southeast, Northeast, Etc.
 ```
