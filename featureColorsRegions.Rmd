@@ -39,7 +39,8 @@ region_mapping <- read.csv(mapping_filename,
 
 #The most common 200 colors in skuinfo data and hard-coded into 17 color groups
 color_mapping <- read.csv(topcolor_filename,
-                          header = TRUE, sep = ",")
+                          header = TRUE, sep = ",") %>%
+  mutate(color = trimws(color))
 
 ```
 
@@ -73,6 +74,7 @@ sku <- read.csv(sku_filename,
 # merging the region variables
 # because the limitation of the data sample, basically only 62 matches were found between the transact and sku. It won't be a problem when we actually apply this to a larger data set.
   left_join(region_mapping, by = 'state') %>%
+  mutate(color = trimws(color)) %>%
   left_join(color_mapping, by = 'color') %>%
 # Merging in the color group, replacing colors with the color groups we hard-coded, and for those we don't know the color group for, it's coded as other
   mutate(color = case_when(
@@ -89,7 +91,8 @@ sku <- read.csv(sku_filename,
 ```{r}
 #State and color are both categorical variables. Need to one-hot encode it.
 dummy <- dummyVars(" ~ .", data=sku)
-sku <- data.frame(predict(dummy, newdata=sku)) %>% write.csv("skufeatures.csv")
+sku <- data.frame(predict(dummy, newdata=sku))
+write.csv(sku, "skufeatures.csv")
 
 #We see there are way too many columns here. Need to group colors into buckets. Coral and Salmon are both pink. 
 #Also without losing info granularity, we are considering grouping different states into regions - West, Southwest, Midwest, Southeast, Northeast, Etc.
