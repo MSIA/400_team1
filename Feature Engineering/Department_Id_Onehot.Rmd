@@ -9,21 +9,45 @@ library(readr)
 library(mltools)
 library(data.table)
 
-Department_id <- read_csv("Department_id.csv")
+library(readr)
+Department_id <- read_csv("~/Downloads/sku_dept.csv")
 
 Department_id$dept <- as.factor(Department_id$dept)
 newdata <- one_hot(as.data.table(Department_id))
-newdata
+newdata <- cbind(Department_id$dept,newdata)
+#newdata$V1 <- as.double(newdata$V1)
+newdata$sku <- as.integer(newdata$sku)
+write.csv(newdata, file="/Users/en0zie/Desktop/mm/skudeptOnehot2.csv", row.names = F)
 #library(caret)
 
 #dummy <- dummyVars(" ~ .", data=Department_id)
 #newdata <- data.frame(predict(dummy, newdata = Department_id)) 
-#newdata
+newdata
 ```
+```{r}
+df = as.data.frame(table(Department_id$dept))
+mean(df$Freq)
+```
+
 
 ```{r}
-library(reshape2)
-
-newdata <- dcast(data = Department_id, Outcome ~ Variable, length
+ggplot(Department_id, aes(x=dept)) +
+  geom_bar(fill="lightblue") + theme(plot.title = element_text(color="red", size=14, face="bold.italic"),
+                                     axis.title.x = element_text(size=12, face="bold"),
+                                      axis.title.y = element_text(size=12, face="bold"),
+                                     axis.text.x = element_text(angle = 90, vjust =0.5, hjust=1)) +
+  ggtitle("Sku Count for Each Department") + xlab("Department_Id") + ylab("Count")
 ```
+```{r}
+BAF <- read_csv("/Users/en0zie/Downloads/BAF.csv")
+
+library(gmm)
+gmm = gmm(BAF, 2, "maha_dist", "random_subset", 10, 10)
+```
+
+
+
+
+
+
 
