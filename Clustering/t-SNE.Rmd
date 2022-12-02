@@ -1,0 +1,33 @@
+---
+title: "TSNE"
+author: "Lixuan Ellen Chen"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+file = "BAF.csv"
+library(Rtsne)
+library(ggplot2)
+sku = read.csv(file, header = TRUE, sep = ",") %>% select(-bin, -log_avg)
+head(sku)
+price_max = max(sku$avg)
+price_min = min(sku$avg)
+price_range = price_max - price_min
+sku = sku %>% mutate(Percent.Discount = Percent.Discount/100,
+                     Percentage.Return = Percentage.Return/100,
+                     avg = (avg-price_min)/price_range)
+
+set.seed(404)
+## Executing the algorithm on curated data
+tsne <- Rtsne(sku, dims = 2, pca = FALSE, eta = 500, theta = 0.9, perplexity=10, max_iter = 500)
+tsne2 <- Rtsne(sku, dims = 2, eta = 500, theta = 0.9, perplexity=20, max_iter = 500)
+Y = as.data.frame(tsne2$Y)
+ggplot(Y, aes(x = V1, y = V2)) +
+  geom_point(alpha = 0.01)
+## Plotting
+```
