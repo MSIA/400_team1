@@ -7,3 +7,4 @@ Team Repo of MSiA 400 Team 1
 3. Misc: Resources we used
 4. Clustering: Jupyter notebook and RMD files that documents that actual implementations of the clustering algorithms
 5. Visualization: Images of EDA and clustering results
+6. Final Deliverables: Contains report, presentation & ROI analysis
